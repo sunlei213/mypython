@@ -28,7 +28,7 @@ class my_model:
         sl=self.clf.predict(X)
         return sl
 
-mymod=my_model(path="d:\\myproject\\")
+mymod=my_model(name='sl',path="..\\")
 mymod.load()
 money=100000.00
 have_stocks={}
@@ -151,6 +151,7 @@ for i in range(open_days.index('2016-01-04'),len(open_days)):
         if ch==1 and st_tol>0:
             test.append(stock)
             stocks_total[stock]=[stocks_total_gb.loc[stock]*close_price]
+    if len(test)==0:continue
     sp=stocks_total.T
     sp.columns=['A']
     ch_stocks=list(sp.sort_values(by='A').index)
