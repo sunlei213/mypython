@@ -110,7 +110,18 @@ class MMModel:
         self.path=path
         self.fullpath= self.path+self.name+".pkl"
     def save(self):
-        #dump_pickle(self, self.fullpath)
+        pickle_file = open('..\\indim.pkl', 'wb')
+        pickle.dump(self.indim, pickle_file)
+        pickle_file.close()
+        pickle_file = open('..\\mod_norm.pkl', 'wb')
+        pickle.dump(self.mod_norm, pickle_file)
+        pickle_file.close()
+        pickle_file = open('..\\mod_demR.pkl', 'wb')
+        pickle.dump(self.mod_demR, pickle_file)
+        pickle_file.close()
+        pickle_file = open('..\\mod_train.pkl', 'wb')
+        pickle.dump(self.mod_train, pickle_file)
+        pickle_file.close()
         return
 
     def load(self,str1):

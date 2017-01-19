@@ -30,10 +30,11 @@ def make_data(date_set):
         for idx in range(1, len(plist) - HISTORY -label1 - 1):
             sample = []
             for i in range(HISTORY):
-                sample.append(plist[idx + i] / plist[idx + i - 1] - 1)
+                sample.append((plist[idx + i] / plist[idx + i - 1] - 1)*9)
             buy_price = buy_prices[idx + HISTORY]
             high_price = max( high_prices[idx + HISTORY:idx + HISTORY+label1])
             low_price = min( low_prices[idx + HISTORY:idx + HISTORY+label1])
+            #answer=high_price/buy_price-1
             if (high_price/buy_price-1)>0.1:
                 answer = 1
             else:
@@ -77,7 +78,7 @@ def start_testing(net, dataset):
     return net.activateOnDataset(dataset)
 
 ### 初始化神经网络
-fnn = buildNetwork(HISTORY, 200, 20,2, 1, hiddenclass=TanhLayer,outclass=SoftmaxLayer)
+fnn = buildNetwork(HISTORY, 200, 20,2, 1)
 ds=random_data(make_data(training_set))
 training_dataset,testing_dataset = ds.splitWithProportion(0.9)
 testing_dataset  = random_data(make_data(testing_set))

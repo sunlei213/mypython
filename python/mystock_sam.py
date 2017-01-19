@@ -152,6 +152,7 @@ for i in range(open_days.index('2016-01-04'),len(open_days)):
             test.append(stock)
             stocks_total[stock]=[stocks_total_gb.loc[stock]*close_price]
     if len(test)==0:continue
+    print test
     sp=stocks_total.T
     sp.columns=['A']
     ch_stocks=list(sp.sort_values(by='A').index)

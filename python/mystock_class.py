@@ -103,6 +103,7 @@ class TrainDataGenerator:
         train_size = np.int16(np.round(self.train_size_perc * self.X.shape[0]))
         self.X_train, self.y_train = self.X.iloc[:train_size, :], self.y.iloc[:train_size]
         self.X_test, self.y_test = self.X.iloc[train_size:, :], self.y.iloc[train_size:]
+
 class MMModel:
     def __init__(self, name='mmm', path='data/TrainPool/',n_pca='mle', C_svr=1.0):
         self.n_pca=n_pca
@@ -111,7 +112,18 @@ class MMModel:
         self.path=path
         self.fullpath= self.path+self.name+".pkl"
     def save(self):
-        #dump_pickle(self, self.fullpath)
+        pickle_file = open('..\\indim.pkl', 'wb')
+        pickle.dump(self.indim, pickle_file)
+        pickle_file.close()
+        pickle_file = open('..\\mod_norm.pkl', 'wb')
+        pickle.dump(self.mod_norm, pickle_file)
+        pickle_file.close()
+        pickle_file = open('..\\mod_demR.pkl', 'wb')
+        pickle.dump(self.mod_demR, pickle_file)
+        pickle_file.close()
+        pickle_file = open('..\\mod_train.pkl', 'wb')
+        pickle.dump(self.mod_train, pickle_file)
+        pickle_file.close()
         return
 
     def load(self,str1):
@@ -159,6 +171,7 @@ class MMModel:
     def score(self,X,y=None):
         Xtrans =self.transform(X)
         return self.mod_train.score(Xtrans,y), metrics.f1_score(y,self.predict(X))
+
 
 TD=TrainDataGenerator("train_samples_1120",train_size_perc=0.9,indim=20)
 tr_date = ("2013-04-01", "2016-12-31")
