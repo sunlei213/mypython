@@ -100,7 +100,7 @@ class TrainDataGenerator:
         #self.y[pos_mask1]=-1
         return self.y
     def split_test(self):
-        train_size = np.int16(np.round(self.train_size_perc * self.X.shape[0]))
+        train_size = np.int(np.round(self.train_size_perc * self.X.shape[0]))
         self.X_train, self.y_train = self.X.iloc[:train_size, :], self.y.iloc[:train_size]
         self.X_test, self.y_test = self.X.iloc[train_size:, :], self.y.iloc[train_size:]
 
@@ -135,7 +135,7 @@ class MMModel:
         self.indim=Xtrans.shape[1]
         self.mod_demR=PCA(n_components=self.n_pca, svd_solver='full')
         Xtrans = self.mod_demR.fit_transform(Xtrans)
-        print self.indim
+        print(self.indim)
         self.mod_train=SVC(kernel='rbf', C=self.C_svr)
         w,weight=self.gen_svr_w(y)
         if(weight<1 or weight>40):
@@ -175,8 +175,8 @@ class MMModel:
 
 TD=TrainDataGenerator("train_samples_1120",train_size_perc=0.9,indim=20)
 tr_date = ("2013-04-01", "2016-12-31")
-sl=ts.get_zz500s()
-sl=list(sl['code'])
+sl=ts.get_today_all()
+sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
 TD.setdatas(sl,tr_date)
 TD.gen()
 print(TD.X.shape)
@@ -197,7 +197,7 @@ print run_time
 #print tes
 #for i in range(len(tes)):
 #    print tes[i],list(y_test)[i]
-trains=mmm.score(X_train,y_train)
+trains=mmm.score(X_test,y_test)
 #tests=mmm.score(X_test,y_test)
 print("train set (accuracy, F1_score)",trains)
 #print("test set (accuracy, F1_score)", tests)
