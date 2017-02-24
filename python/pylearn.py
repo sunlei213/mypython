@@ -20,6 +20,12 @@ universe=['600030']
 training_set = ("2013-04-01", "2016-07-31")       # 训练集（六年）
 testing_set  = ("2016-01-15", "2016-03-22")       # 测试集（2015上半年数据）
 
+def sigmoid(X,useStatus=True):  
+    if useStatus:  
+        return 1.0 / (1 + np.exp(-float(X)));  
+    else:  
+        return float(X);  
+               
 def make_data(date_set):
     ds = SupervisedDataSet(HISTORY, 2)
     for ticker in universe: # 遍历每支股票
@@ -33,7 +39,7 @@ def make_data(date_set):
             for idx in range(1, len(plist) - HISTORY -label1 - 1):
                 sample = []
                 for i in range(HISTORY):
-                    sample.append((plist[idx + i] / plist[idx + i - 1] - 1)*9)
+                    sample.append(sigmoid(plist[idx + i] / plist[idx + i - 1] - 1))
                 buy_price = buy_prices[idx + HISTORY]
                 high_price = max( high_prices[idx + HISTORY:idx + HISTORY+label1])
                 low_price = min( low_prices[idx + HISTORY:idx + HISTORY+label1])
@@ -81,7 +87,7 @@ def start_testing(net, dataset):
     return net.activateOnDataset(dataset)
 
 ### 初始化神经网络
-fnn = buildNetwork(HISTORY, 200, 100,50, 2, bias = True,recurrent=True, hiddenclass=TanhLayer,outclass=SoftmaxLayer )
+fnn = buildNetwork(HISTORY, 200, 100,50, 2, bias = True,recurrent=True, hiddenclass=TanhLayer,outclass=TanhLayer )
 sl=ts.get_today_all()
 sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
 universe=sl
