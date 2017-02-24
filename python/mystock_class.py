@@ -15,6 +15,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn import metrics
 import cPickle as pickle
+from pybrain.datasets import SupervisedDataSet
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.tools.customxml import NetworkWriter
+from pybrain.tools.shortcuts import buildNetwork
+from pybrain.structure.modules import *
 
 
 class TrainDataGenerator:
@@ -66,7 +71,7 @@ class TrainDataGenerator:
                 low_price = min(stock_data['close'].values[index:index+self.outdim])
                 features = [buy_price,low_price,high_price]
                 for day in range(self.indim):
-                    up_rate=close_prices[index-self.indim+day]/10
+                    up_rate=close_prices[index-self.indim+day]/11.0
                     if up_rate!=up_rate:up_rate=0.0
                     features.append(up_rate)
                 X.append(features)
@@ -172,6 +177,22 @@ class MMModel:
         Xtrans =self.transform(X)
         return self.mod_train.score(Xtrans,y), metrics.f1_score(y,self.predict(X))
 
+### 构造BP训练实例
+def make_trainer(net, ds, learningrate=0.01,momentum = 0.1, verbose = True, weightdecay = 0.01): # 网络, 训练集, 训练参数
+    trainer = BackpropTrainer(net, ds, learningrate=learningrate,momentum = momentum, verbose = verbose, weightdecay = weightdecay)
+    return trainer
+### 开始训练
+def start_training(trainer, epochs = 15): # 迭代次数
+    trainer.trainEpochs(epochs)
+
+def start_testing(net, dataset):
+    return net.activateOnDataset(dataset)
+
+def save_arguments(net):
+    NetworkWriter.writeToFile(net, 'huge_data.csv')
+    print 'Arguments save to file net.csv'
+
+
 
 TD=TrainDataGenerator("train_samples_1120",train_size_perc=0.9,indim=20)
 tr_date = ("2013-04-01", "2016-12-31")
@@ -185,19 +206,41 @@ X_train=TD.X
 y_train=TD.y
 X_test=TD.X_test
 y_test=TD.y_test
+ds = SupervisedDataSet(TD.indim, 2)
+for i in range(TD.X.shape[0]):
+    inp,outp = TD.X.iloc[i],TD.y.iloc[i]
+    if outp==1:
+        outp = [1,0]
+    else:
+        outp = [0,1]
+    ds.addSample(inp,outp)
+training_dataset,testing_dataset = ds.splitWithProportion(0.9)
 print(X_train.shape)
 print(X_test.shape)
-mmm = MMModel(name="model_test",n_pca=20, C_svr=1.0)
+
+mmm = MMModel(name="model_test",n_pca=20, C_svr=1.0) #svc分类
+
+fnn = buildNetwork(HISTORY, 200, 100,50, 2, bias = True, hiddenclass=TanhLayer,outclass=SoftmaxLayer)
+trainer = make_trainer(fnn, training_dataset,0.005)
 s_time=time.time()
 print s_time
-mmm.fit(X_train,y_train)
+for i in range(10):
+    b_time=time.time()
+    start_training(trainer,5)
+    print time.time()-b_time
+
+#mmm.fit(X_train,y_train)
 run_time=time.time()-s_time
 print run_time
+
+s1=start_testing(fnn, testing_dataset )
+for i in range(min(len(s1),30)):
+    print s1[i],testing_dataset['target'][i]
 #tes=mmm.predict(X_test)
 #print tes
 #for i in range(len(tes)):
 #    print tes[i],list(y_test)[i]
-trains=mmm.score(X_test,y_test)
+#trains=mmm.score(X_test,y_test)
 #tests=mmm.score(X_test,y_test)
-print("train set (accuracy, F1_score)",trains)
+#print("train set (accuracy, F1_score)",trains)
 #print("test set (accuracy, F1_score)", tests)
