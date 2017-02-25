@@ -76,7 +76,7 @@ def save_arguments(net):
     print 'Arguments save to file net.csv'
 
 ### 构造BP训练实例
-def make_trainer(net, ds, learningrate=0.01,momentum = 0.1, verbose = True, weightdecay = 0.01): # 网络, 训练集, 训练参数
+def make_trainer(net, ds, learningrate=0.01,momentum = 0.1, verbose = True, weightdecay = 0.1): # 网络, 训练集, 训练参数
     trainer = BackpropTrainer(net, ds, learningrate=learningrate,momentum = momentum, verbose = verbose, weightdecay = weightdecay)
     return trainer
 ### 开始训练
@@ -87,12 +87,13 @@ def start_testing(net, dataset):
     return net.activateOnDataset(dataset)
 
 ### 初始化神经网络
-fnn = buildNetwork(HISTORY, 200, 100,50, 2, bias = True,recurrent=True, hiddenclass=TanhLayer,outclass=TanhLayer )
+
 sl=ts.get_today_all()
 sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
 universe=sl
 ds=random_data(make_data(training_set))
 training_dataset,testing_dataset = ds.splitWithProportion(0.9)
+fnn = buildNetwork(HISTORY, 200, 80,20, 2, bias = True,recurrent=True, hiddenclass=TanhLayer,outclass=SigmoidLayer )
 #testing_dataset  = random_data(make_data(testing_set))
 trainer = make_trainer(fnn, training_dataset,0.005)
 s_time=time.time()
