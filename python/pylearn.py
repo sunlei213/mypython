@@ -16,9 +16,9 @@ import time
 
 HISTORY=20
 label1=10
-universe=['600030']
-training_set = ("2013-04-01", "2016-07-31")       # 训练集（六年）
-testing_set  = ("2016-01-15", "2016-03-22")       # 测试集（2015上半年数据）
+
+training_set = ("2013-04-01", "2016-07-01")       # 训练集（六年）
+testing_set  = ("2016-01-05", "2016-12-31")       # 测试集（2015上半年数据）
 
 def sigmoid(X,useStatus=True):  
     if useStatus:  
@@ -88,17 +88,20 @@ def start_testing(net, dataset):
 
 ### 初始化神经网络
 
-sl=ts.get_today_all()
-sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
-universe=sl
+#sl=ts.get_today_all()
+#sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
+#universe=sl
+universe=['600030']
 ds=random_data(make_data(training_set))
 training_dataset,testing_dataset = ds.splitWithProportion(0.9)
-fnn = buildNetwork(HISTORY, 200, 80,20, 2, bias = True,recurrent=True, hiddenclass=TanhLayer,outclass=SigmoidLayer )
-#testing_dataset  = random_data(make_data(testing_set))
+training_dataset = ds
+print(len(ds))
+fnn = buildNetwork(HISTORY, 200, 80,20, 2, bias = True,recurrent=False, hiddenclass=TanhLayer,outclass=SoftmaxLayer )
+testing_dataset  = random_data(make_data(testing_set))
 trainer = make_trainer(fnn, training_dataset,0.005)
 s_time=time.time()
 print s_time
-for i in range(2):
+for i in range(10):
     b_time=time.time()
     start_training(trainer,5)
     print time.time()-b_time
