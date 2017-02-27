@@ -39,7 +39,7 @@ def make_data(date_set):
             for idx in range(1, len(plist) - HISTORY -label1 - 1):
                 sample = []
                 for i in range(HISTORY):
-                    sample.append(sigmoid(plist[idx + i] / plist[idx + i - 1] - 1))
+                    sample.append((plist[idx + i] / plist[idx + i - 1] - 1)*9)
                 buy_price = buy_prices[idx + HISTORY]
                 high_price = max( high_prices[idx + HISTORY:idx + HISTORY+label1])
                 low_price = min( low_prices[idx + HISTORY:idx + HISTORY+label1])
@@ -88,20 +88,20 @@ def start_testing(net, dataset):
 
 ### 初始化神经网络
 
-#sl=ts.get_today_all()
-#sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
-#universe=sl
-universe=['600030']
+sl=ts.get_today_all()
+sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
+universe=sl
+#universe=['600030']
 ds=random_data(make_data(training_set))
 training_dataset,testing_dataset = ds.splitWithProportion(0.9)
-training_dataset = ds
+#training_dataset = ds
 print(len(ds))
 fnn = buildNetwork(HISTORY, 200, 80,20, 2, bias = True,recurrent=False, hiddenclass=TanhLayer,outclass=SoftmaxLayer )
-testing_dataset  = random_data(make_data(testing_set))
-trainer = make_trainer(fnn, training_dataset,0.005)
+#testing_dataset  = random_data(make_data(testing_set))
+trainer = make_trainer(fnn, training_dataset,0.005,weightdecay = 0.001)
 s_time=time.time()
 print s_time
-for i in range(10):
+for i in range(1):
     b_time=time.time()
     start_training(trainer,5)
     print time.time()-b_time
@@ -113,7 +113,7 @@ print run_time
 save_arguments(fnn)
 s1=start_testing(fnn, testing_dataset )
 t=f=0
-for i in range(len(s1)):
+for i in range(min(len(s1),50)):
     print s1[i],testing_dataset['target'][i]
     if s1[i][0]>s1[i][1]:
         if testing_dataset['target'][i][0]==1:
