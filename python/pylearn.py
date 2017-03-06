@@ -15,9 +15,9 @@ import numpy as np
 import time
 
 HISTORY=20
-label1=10
+label1=5
 
-training_set = ("2013-04-01", "2016-07-01")       # 训练集（六年）
+training_set = ("2013-01-01", "2016-07-01")       # 训练集（六年）
 testing_set  = ("2016-01-05", "2016-12-31")       # 测试集（2015上半年数据）
 
 def sigmoid(X,useStatus=True):  
@@ -29,7 +29,7 @@ def sigmoid(X,useStatus=True):
 def make_data(date_set):
     ds = SupervisedDataSet(HISTORY, 2)
     for ticker in universe: # 遍历每支股票
-        df = ts.get_hist_data(ticker, start=date_set[0], end=date_set[1])
+        df = ts.get_k_data(ticker, start=date_set[0], end=date_set[1])
         if str(type(df))!="<class 'NoneType'>":
             raw_data = df.dropna()
             plist = list(raw_data['close'])
@@ -55,7 +55,7 @@ def make_data(date_set):
 def make_testing_data():
     ds = SupervisedDataSet(HISTORY, 1)
     for ticker in universe: # 遍历每支股票
-        raw_data =  ts.get_hist_data(ticker, start=testing_set[0], end=testing_set[1])
+        raw_data =  ts.get_k_data(ticker, start=testing_set[0], end=testing_set[1])
         plist = list(raw_data['close'])
         for idx in range(1, len(plist) - HISTORY - 1):
             sample = []
@@ -71,8 +71,8 @@ def random_data(dataset):
     for i in np.random.permutation(len(dataset)):
         ds.addSample(dataset['input'][i],dataset['target'][i])
     return ds
-def save_arguments(net):
-    NetworkWriter.writeToFile(net, 'huge_data.csv')
+def save_arguments(net,filename):
+    NetworkWriter.writeToFile(net, filename)
     print 'Arguments save to file net.csv'
 
 ### 构造BP训练实例
@@ -88,20 +88,22 @@ def start_testing(net, dataset):
 
 ### 初始化神经网络
 
-sl=ts.get_today_all()
-sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
+#sl=ts.get_today_all()
+#sl=list((sl.set_index('code'))['mktcap'].sort_values().index[:400])
+sl=ts.get_zz500s()
+sl=list(sl['code'])
 universe=sl
 #universe=['600030']
 ds=random_data(make_data(training_set))
 training_dataset,testing_dataset = ds.splitWithProportion(0.9)
 #training_dataset = ds
 print(len(ds))
-fnn = buildNetwork(HISTORY, 200, 80,20, 2, bias = True,recurrent=False, hiddenclass=TanhLayer,outclass=SoftmaxLayer )
+fnn = buildNetwork(HISTORY, 200, 100,50, 2, bias = True,recurrent=True, hiddenclass=TanhLayer,outclass=SoftmaxLayer )
 #testing_dataset  = random_data(make_data(testing_set))
-trainer = make_trainer(fnn, training_dataset,0.005,weightdecay = 0.001)
+trainer = make_trainer(fnn, training_dataset,0.005,weightdecay = 0.00001)
 s_time=time.time()
 print s_time
-for i in range(1):
+for i in range(100):
     b_time=time.time()
     start_training(trainer,5)
     print time.time()-b_time
@@ -110,7 +112,7 @@ for i in range(1):
 run_time=time.time()-s_time
 print run_time
 
-save_arguments(fnn)
+save_arguments(fnn,'500.xml')
 s1=start_testing(fnn, testing_dataset )
 t=f=0
 for i in range(min(len(s1),50)):
