@@ -17,7 +17,7 @@ import time
 HISTORY=20
 label1=5
 
-training_set = ("2016-02-01", "2017-03-17")       # 训练集（六年）
+training_set = ("2015-02-01", "2017-03-17")       # 训练集（六年）
 testing_set  = ("2016-01-05", "2016-12-31")       # 测试集（2015上半年数据）
 
 def sigmoid(X,useStatus=True):  
@@ -102,7 +102,7 @@ ds=random_data(make_data(training_set))
 training_dataset,testing_dataset = ds.splitWithProportion(0.9)
 #training_dataset = ds
 print(len(ds))
-fnn = load_arguments('500.xml')
+fnn = load_arguments('500_1.xml')
 #fnn = buildNetwork(HISTORY, 200, 100,50, 2, bias = True,recurrent=True, hiddenclass=TanhLayer,outclass=SoftmaxLayer )
 #testing_dataset  = random_data(make_data(testing_set))
 trainer = make_trainer(fnn, training_dataset,0.005,weightdecay = 0.00001)
@@ -117,7 +117,7 @@ for i in range(100):
 run_time=time.time()-s_time
 print run_time
 
-save_arguments(fnn,'500_1.xml')
+save_arguments(fnn,'500_1_1.xml')
 s1=start_testing(fnn, testing_dataset )
 t=[0]*10
 f=[0]*10
