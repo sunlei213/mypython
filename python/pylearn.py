@@ -108,9 +108,9 @@ fnn = load_arguments('500_1.xml')
 trainer = make_trainer(fnn, training_dataset,0.005,weightdecay = 0.00001)
 s_time=time.time()
 print s_time
-for i in range(100):
+for i in range(10):
     b_time=time.time()
-    start_training(trainer,5)
+    start_training(trainer,1)
     print time.time()-b_time
 
 #mmm.fit(X_train,y_train)
